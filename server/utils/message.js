@@ -1,5 +1,11 @@
 var moment=require('moment');
 
+var generateTypingMessage= (from) => {
+  return {
+    text:`${from} is typing .....`
+  }
+}
+
 var generateMessage=(from,text) => {
   return {
     from,
@@ -16,4 +22,4 @@ var generateLocationMessage= (from , latitude , longitude )=>{
   };
 };
 
-module.exports = {generateMessage,generateLocationMessage};
+module.exports = {generateMessage,generateLocationMessage,generateTypingMessage};

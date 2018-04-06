@@ -43,6 +43,8 @@ socket.on('updateUserList',function (users) {
 });
 
 socket.on('newMessage',function(message){
+  jQuery('#feedback').html('');
+  jQuery('#feedback').hide();
   var formattedTime=moment(message.createdAt).format('h:mm a');
   var template=jQuery('#message-template').html();
   var html=Mustache.render(template,{
@@ -57,6 +59,9 @@ socket.on('newMessage',function(message){
 });
 
 socket.on('newLocationMessage',function(message){
+
+  jQuery('#feedback').html('');
+  jQuery('#feedback').hide();
   var formattedTime=moment(message.createdAt).format('h:mm a');
   var template=jQuery('#location-message-template').html();
   var html=Mustache.render(template,{
@@ -66,6 +71,16 @@ socket.on('newLocationMessage',function(message){
   });
 
   jQuery('#messages').append(html);
+  scrollToBottom();
+});
+
+socket.on('newTypingMessage',function(message){
+  jQuery('#feedback').show();
+  var template=jQuery('#typing-message-template').html();
+  var html=Mustache.render(template,{
+    text:message.text
+  });
+  jQuery('#feedback').html(html);
   scrollToBottom();
 });
 
@@ -80,6 +95,10 @@ jQuery('#message-form').on('submit',function(e){
   },function(){
     messageTextbox.val('');
   });
+});
+
+jQuery('[name=message]').on('keypress',function(){
+  socket.emit('typing');
 });
 
 var locationButton = jQuery('#send-location');

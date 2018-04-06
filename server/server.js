@@ -5,7 +5,7 @@ var socketIO=require('socket.io');
 
 
 var {isRealString} = require('./utils/validation');
-var {generateMessage,generateLocationMessage} = require('./utils/message');
+var {generateMessage,generateLocationMessage,generateTypingMessage} = require('./utils/message');
 var {Users} = require('./utils/users');
 var publicpath=path.join(__dirname,'../public');
 var port=process.env.PORT||3000;
@@ -45,12 +45,22 @@ io.on('connection', (socket) => {
     callback();
   });
 
+  socket.on('typing',()=>{
+
+    var user=users.getUser(socket.id);
+
+    if(user) {
+      socket.broadcast.to(user.room).emit('newTypingMessage',generateTypingMessage(user.name));
+    }
+
+  });
+
   socket.on('createLocationMessage',(coords) => {
     var user=users.getUser(socket.id);
     if(user) {
       io.to(user.room).emit('newLocationMessage',generateLocationMessage(user.name,coords.latitude,coords.longitude));
     }
-    
+
   });
   socket.on('disconnect', () => {
     var user = users.removeUser(socket.id);
