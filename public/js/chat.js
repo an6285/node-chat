@@ -28,6 +28,10 @@ socket.on('connect',function(){
       console.log('No error');
     }
   });
+  jQuery('#welcome-msg').text('Welcome '+params.name+' !');
+  var ul=jQuery('<ul></ul>');
+  ul.append(jQuery('<li></li>').text(params.room));
+  jQuery('#room-name').html(ul);
 });
 
 socket.on('disconnect',function(){
@@ -97,7 +101,7 @@ jQuery('#message-form').on('submit',function(e){
   });
 });
 
-jQuery('[name=message]').on('keypress',function(){
+jQuery('[name=message]').on('keydown',function(){
   socket.emit('typing');
 });
 

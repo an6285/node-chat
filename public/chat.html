@@ -8,10 +8,13 @@
 </head>
 <body class="chat">
   <div class="chat__sidebar">
-    <h3>People</h3>
+    <h3 id="welcome-msg"></h3>
+    <h3>Room name:</h3>
+    <div id="room-name">
+    </div>
+    <h3>People:</h3>
     <div id="users"></div>
   </div>
-
   <div class="chat__main">
     <ol id="messages" class="chat__messages">
     </ol>
@@ -55,7 +58,6 @@
   <script id="typing-message-template" type="text/template">
     <p><em>{{text}}</em></p>
   </script>
-
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/libs/jquery-3.3.1.min.js"></script>

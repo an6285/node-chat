@@ -12,9 +12,24 @@ var port=process.env.PORT||3000;
 var app=express();
 var server=http.createServer(app);
 var io=socketIO(server);
+var hbs=require('hbs');
 var users=new Users();
+//test code
+var roomset=new Set();
 
 app.use(express.static(publicpath));
+
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, '../public'));
+
+app.get('/', (req,res) =>{
+  var myArr = Array.from(roomset);
+  res.render('index',{roomlist:myArr});
+});
+
+hbs.registerHelper('ifEquals', function(arg1, arg2, options) {
+    return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
+});
 
 io.on('connection', (socket) => {
   console.log('New user connected');
@@ -25,9 +40,23 @@ io.on('connection', (socket) => {
       return callback('Name and room name are required');
     }
 
+    var userroomlist=users.getUserList(params.room);
+    console.log(userroomlist,'user in that room');
+    var filteredlist=userroomlist.filter((user) => user === params.name);
+    console.log(filteredlist,'filtered users');
+
+    if(filteredlist.length>0)
+    {
+      console.log('Username already exists');
+      return callback('Same username already exists in room please try again !');
+    }
+
     socket.join(params.room);
     users.removeUser(socket.id);
     users.addUser(socket.id, params.name, params.room);
+    //test code
+    roomset.add(params.room);
+    console.log(roomset);
 
     io.to(params.room).emit('updateUserList',users.getUserList(params.room));
 
@@ -64,7 +93,15 @@ io.on('connection', (socket) => {
   });
   socket.on('disconnect', () => {
     var user = users.removeUser(socket.id);
+
     if(user) {
+      //test code
+      var roomlist=users.getUserList(user.room);
+      console.log(roomlist);
+      if(roomlist.length===0) {
+        roomset.delete(user.room);
+      }
+      console.log(roomset);
       io.to(user.room).emit('updateUserList',users.getUserList(user.room));
       io.to(user.room).emit('newMessage',generateMessage('Admin',`${user.name} has left`));
     }
